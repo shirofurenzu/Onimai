@@ -22,6 +22,9 @@
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
+            display: flex; /* 將容器設定為 Flex 容器 */
+             flex-direction: column; /* 讓子元素垂直排列 */
+            align-items: center; /* 讓子元素在交叉軸（水平方向）上居中對齊 */
         }
         h1 {
             color: #333;
@@ -45,6 +48,7 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            
         }
         .button:hover {
             background-color: #0056b3;
@@ -56,7 +60,9 @@
             background-color: #545b62;
         }
         .image {
-            margin: 20px 5px; /* 上下 10px，左右 5px 的外邊距 */
+            margin: 20px; /* 上下 10px，左右 5px 的外邊距 */
+            display: block; /* 讓圖片成為塊級元素，獨佔一行，方便居中 */
+            
 }
     </style>
 </head>
