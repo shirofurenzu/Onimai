@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合約盈虧預估</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px ContractProfitandLoss.html(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px; /* 調整容器寬度 */
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"] {
+            width: calc(100% - 12px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .select-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .select-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .select-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .result-group {
+            margin-top: 30px;
+            text-align: left;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .result-item {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #555;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #007bff;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        .note {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>合約盈虧預估</h1>
+
+        <div class="select-group">
+            <button class="select-button active" id="longButton">做多</button>
+            <button class="select-button" id="shortButton">做空</button>
+        </div>
+
+        <div class="input-group">
+            <label for="entryPrice">開倉價格 (USDT)：</label>
+            <input type="number" id="entryPrice" placeholder="例如：1800">
+        </div>
+
+        <div class="input-group">
+            <label for="exitPrice">平倉價格 (USDT)：</label>
+            <input type="number" id="exitPrice" placeholder="例如：1800">
+        </div>
+
+        <div class="input-group">
+            <label for="quantity">成交數量 (USDT)：</label>
+            <input type="number" id="quantity" placeholder="例如：100">
+        </div>
+
+        <div class="input-group">
+            <label for="leverage">槓桿倍數：</label>
+            <input type="number" id="leverage" value="10" placeholder="例如：10">
+        </div>
+
+        <div class="result-group">
+            <h2>結果</h2>
+            <div class="result-item">起始保證金：<span id="initialMargin" class="highlight">0.00</span> USDT</div>
+            <div class="result-item">盈虧：<span id="profitLoss" class="highlight">0.00</span> USDT</div>
+            <div class="result-item">投資報酬率：<span id="roi" class="highlight">0.00</span>%</div>
+        </div>
+
+        <button onclick="calculateProfit()">計算</button>
+
+        <p class="note">
+            * 提醒您，合約交易具有高風險，請務必謹慎操作。<br>
+            * 本工具僅為預估計算，實際交易結果可能因市場波動等因素而有所不同。
+        </p>
+    </div>
+
+    <script>
+        const longButton = document.getElementById('longButton');
+        const shortButton = document.getElementById('shortButton');
+        const entryPriceInput = document.getElementById('entryPrice');
+        const exitPriceInput = document.getElementById('exitPrice');
+        const quantityInput = document.getElementById('quantity');
+        const leverageInput = document.getElementById('leverage');
+        const initialMarginSpan = document.getElementById('initialMargin');
+        const profitLossSpan = document.getElementById('profitLoss');
+        const roiSpan = document.getElementById('roi');
+
+        let isLong = true; // 預設為做多
+
+        longButton.addEventListener('click', () => {
+            isLong = true;
+            longButton.classList.add('active');
+            shortButton.classList.remove('active');
+        });
+
+        shortButton.addEventListener('click', () => {
+            isLong = false;
+            shortButton.classList.add('active');
+            longButton.classList.remove('active');
+        });
+
+        function calculateProfit() {
+            const entryPrice = parseFloat(entryPriceInput.value);
+            const exitPrice = parseFloat(exitPriceInput.value);
+            const quantity = parseFloat(quantityInput.value);
+            const leverage = parseFloat(leverageInput.value);
+
+            if (isNaN(entryPrice) || isNaN(exitPrice) || isNaN(quantity) || isNaN(leverage) || leverage <= 0) {
+                initialMarginSpan.textContent = '---';
+                profitLossSpan.textContent = '---';
+                roiSpan.textContent = '---';
+                return;
+            }
+
+            const initialMargin = quantity / leverage;
+            let profitLoss;
+
+            if (isLong) {
+                profitLoss = (exitPrice - entryPrice) * (quantity / entryPrice);
+            } else {
+                profitLoss = (entryPrice - exitPrice) * (quantity / entryPrice);
+            }
+
+            const roi = (profitLoss / initialMargin) * 100;
+
+            initialMarginSpan.textContent = initialMargin.toFixed(2);
+            profitLossSpan.textContent = profitLoss.toFixed(2);
+            roiSpan.textContent = roi.toFixed(2);
+        }
+    </script>
+</body>
+</html>
