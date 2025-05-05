@@ -11,14 +11,14 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #555;
             margin: 0;
         }
         .container {
             background-color: #fff;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 5px ContractProfitandLoss.html(0, 0, 0, 0.1);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
             width: 400px; /* 調整容器寬度 */
         }
@@ -61,7 +61,6 @@
             transition: background-color 0.3s ease;
         }
         .select-button.active {
-            background-color: #007bff;
             color: white;
         }
         .result-group {
@@ -80,6 +79,12 @@
             font-weight: bold;
             color: #007bff;
         }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
         button {
             background-color: #28a745;
             color: white;
@@ -91,7 +96,13 @@
             transition: background-color 0.3s ease;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #aaa;
+        }
+        .home-button {
+            background-color: #007bff;
+        }
+        .home-button:hover {
+            background-color: #0056b3;
         }
         .note {
             margin-top: 20px;
@@ -106,7 +117,7 @@
         <h1>合約盈虧預估</h1>
 
         <div class="select-group">
-            <button class="select-button active" id="longButton">做多</button>
+            <button class="select-button active" id="longButton" style="background-color: red;">做多</button>
             <button class="select-button" id="shortButton">做空</button>
         </div>
 
@@ -137,7 +148,10 @@
             <div class="result-item">投資報酬率：<span id="roi" class="highlight">0.00</span>%</div>
         </div>
 
-        <button onclick="calculateProfit()">計算</button>
+        <div class="button-group">
+            <button onclick="calculateProfit()">計算</button>
+            <button class="home-button"><a href="../index.html" style="color: white; text-decoration: none;">回首頁</a></button>
+        </div>
 
         <p class="note">
             * 提醒您，合約交易具有高風險，請務必謹慎操作。<br>
@@ -161,13 +175,17 @@
         longButton.addEventListener('click', () => {
             isLong = true;
             longButton.classList.add('active');
+            longButton.style.backgroundColor = 'red'; // 確保點擊做多時也是紅色
             shortButton.classList.remove('active');
+            shortButton.style.backgroundColor = '#f0f0f0'; // 恢復預設顏色
         });
 
         shortButton.addEventListener('click', () => {
             isLong = false;
             shortButton.classList.add('active');
+            shortButton.style.backgroundColor = 'green';
             longButton.classList.remove('active');
+            longButton.style.backgroundColor = '#f0f0f0'; // 恢復預設顏色
         });
 
         function calculateProfit() {

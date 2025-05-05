@@ -13,28 +13,30 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #555;
             margin: 0;
         }
         .container {
-            background-color: #fff;
+            background-color: #EEE;
             padding: 40px;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             text-align: center;
+            width: 400px; /* 調整容器寬度 */
             display: flex; /* 將容器設定為 Flex 容器 */
-             flex-direction: column; /* 讓子元素垂直排列 */
+            flex-direction: column; /* 讓子元素垂直排列 */
             align-items: center; /* 讓子元素在交叉軸（水平方向）上居中對齊 */
         }
         h1 {
             color: #333;
             margin-bottom: 30px;
+            font-size: 2.5em;
         }
         .button-group {
             display: flex;
             flex-direction: column;
             gap: 15px;
-            width: 200px;
+            width: 300px;
         }
         .button {
             display: block;
@@ -54,13 +56,13 @@
             background-color: #0056b3;
         }
         .other-button {
-            background-color: #6c757d;
+            background-color: #999;
         }
         .other-button:hover {
             background-color: #545b62;
         }
         .image {
-            margin: 20px; /* 上下 10px，左右 5px 的外邊距 */
+            margin: 20px; 
             display: block; /* 讓圖片成為塊級元素，獨佔一行，方便居中 */
             
 }
@@ -69,7 +71,7 @@
 <body>
     <div class="container">
         <h1>Onimai Online</h1>
-        <img class="image" src="images/Mahiro.png" alt="Oyama Mahiro" style="width: 180px; height: auto;">
+        <img class="image" src="images/Mahiro.png" alt="Oyama Mahiro" style="width: 280px; height: auto;">
         <div class="button-group">
             <a href="app/ContractProfitandLoss.html" class="button">合約盈虧預估</a>
             <a href="#" class="button other-button">按鈕二</a>
