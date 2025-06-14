@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>待辦清單</title>
+    <link rel="icon" href="../images/brother.png" type="image/png">
+    <style>
+        /* --- CSS 樣式開始 --- */
+        /* 定義 CSS 變數用於主題切換 */
+        :root {
+            --bg-color: linear-gradient(135deg, #f0f2f5 0%, #e0e5ec 100%);
+            --text-color: #333;
+            --container-bg: #ffffff;
+            --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --header-color: #4CAF50;
+            --header-icon-color: #388E3C;
+            --input-border-color: #ddd;
+            --primary-btn-bg: #4CAF50;
+            --primary-btn-hover-bg: #388E3C;
+            --io-btn-bg: #607D8B;
+            --io-btn-hover-bg: #455A64;
+            --filter-btn-bg: #f0f0f0;
+            --filter-btn-text: #555;
+            --filter-btn-border: #ddd;
+            --task-item-bg: #f9f9f9;
+            --task-item-border: #eee;
+            --task-item-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            --task-completed-text: #888;
+            --task-meta-text: #777;
+            --edit-bg: #eef;
+            --edit-border: #ccc;
+            --action-btn-text: #555;
+            --action-btn-border: #ccc;
+            --action-btn-hover-bg: #4CAF50;
+            --action-btn-hover-text: white;
+            --delete-btn-hover-bg: #E53935;
+            --no-task-text: #777;
+            --priority-high: #F44336;
+            --priority-medium: #FFC107;
+            --priority-low: #2196F3;
+        }
+
+        /* 暗黑模式樣式 */
+        body.dark-mode {
+            --bg-color: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            --text-color: #ecf0f1;
+            --container-bg: #3b4d60;
+            --container-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --header-color: #66BB6A;
+            --header-icon-color: #4CAF50;
+            --input-border-color: #5d6d7e;
+            --primary-btn-bg: #66BB6A;
+            --primary-btn-hover-bg: #4CAF50;
+            --io-btn-bg: #7f8c8d;
+            --io-btn-hover-bg: #95a5a6;
+            --filter-btn-bg: #5d6d7e;
+            --filter-btn-text: #ecf0f1;
+            --filter-btn-border: #7f8c8d;
+            --task-item-bg: #4a5d70;
+            --task-item-border: #5d6d7e;
+            --task-item-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            --task-completed-text: #aeb6bf;
+            --task-meta-text: #bdc3c7;
+            --edit-bg: #6c7e8e;
+            --edit-border: #7f8c8d;
+            --action-btn-text: #bdc3c7;
+            --action-btn-border: #7f8c8d;
+            --action-btn-hover-bg: #66BB6A;
+            --action-btn-hover-text: white;
+            --delete-btn-hover-bg: #ef5350;
+            --no-task-text: #bdc3c7;
+            /* 優先級顏色不變，保持視覺區分 */
+        }
+
+
+        body {
+            font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif;
+            background: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 20px;
+            color: var(--text-color);
+            box-sizing: border-box;
+            transition: background 0.3s ease, color 0.3s ease; /* 平滑過渡 */
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 35px 45px;
+            border-radius: 15px;
+            box-shadow: var(--container-shadow);
+            width: 100%;
+            max-width: 700px;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--header-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: color 0.3s ease;
+        }
+
+        h1::before {
+            content: "📝";
+            margin-right: 5px;
+            font-size: 0.8em;
+        }
+
+        /* --- 輸入區域 --- */
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .input-area input[type="text"],
+        .input-area input[type="date"],
+        .input-area select {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 8px;
+            font-size: 1em;
+            min-width: 120px;
+            box-sizing: border-box;
+            background-color: var(--container-bg); /* 跟隨容器背景 */
+            color: var(--text-color);
+            transition: border-color 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .input-area button {
+            background-color: var(--primary-btn-bg);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .input-area button:hover {
+            background-color: var(--primary-btn-hover-bg);
+            transform: translateY(-2px);
+        }
+
+        .input-area button:active {
+            transform: translateY(0);
+        }
+
+        /* --- 匯出入及主題切換按鈕區塊 --- */
+        .io-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .io-buttons button {
+            background-color: var(--io-btn-bg);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .io-buttons button:hover {
+            background-color: var(--io-btn-hover-bg);
+            transform: translateY(-2px);
+        }
+        .io-buttons button:active {
+            transform: translateY(0);
+        }
+
+        .io-buttons input[type="file"] {
+            display: none;
+        }
+
+
+        /* --- 篩選按鈕 --- */
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background-color: var(--filter-btn-bg);
+            color: var(--filter-btn-text);
+            border: 1px solid var(--filter-btn-border);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--filter-btn-border);
+            color: var(--text-color);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-btn-bg);
+            color: white;
+            border-color: var(--primary-btn-bg);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+        }
+
+        /* --- 任務列表 --- */
+        #taskList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .task-item {
+            background-color: var(--task-item-bg);
+            border: 1px solid var(--task-item-border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: flex-start; /* 讓內容靠上對齊，因為有備註 */
+            gap: 15px;
+            box-shadow: var(--task-item-shadow);
+            transition: all 0.3s ease;
+            cursor: grab;
+            position: relative;
+            flex-wrap: wrap; /* 應對小螢幕 */
+        }
+
+        .task-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .task-item.dragging {
+            opacity: 0.5;
+            background-color: var(--primary-btn-bg); /* 拖曳時突出顏色 */
+            border-color: var(--primary-btn-hover-bg);
+        }
+
+        .task-item input[type="checkbox"] {
+            min-width: 20px;
+            min-height: 20px;
+            accent-color: var(--primary-btn-bg);
+            cursor: pointer;
+            margin-top: 2px; /* 與文字對齊 */
+        }
+
+        .task-content {
+            flex-grow: 1;
+            font-size: 1.1em;
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* 允許內容收縮 */
+        }
+
+        .task-text {
+            word-break: break-word;
+            padding: 2px 0;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: var(--task-completed-text);
+        }
+
+        .task-meta {
+            font-size: 0.85em;
+            color: var(--task-meta-text);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .task-meta .due-date::before {
+            content: "📅 ";
+            color: #E65100;
+        }
+
+        /* 任務備註樣式 */
+        .task-notes-wrapper {
+            width: 100%; /* 佔滿整行 */
+            margin-top: 8px;
+            border-top: 1px dashed var(--input-border-color);
+            padding-top: 8px;
+        }
+
+        .task-notes-toggle {
+            font-size: 0.9em;
+            color: var(--primary-btn-bg);
+            cursor: pointer;
+            display: inline-block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            transition: color 0.2s ease;
+        }
+
+        .task-notes-toggle:hover {
+            color: var(--primary-btn-hover-bg);
+        }
+
+        .task-notes {
+            font-size: 0.9em;
+            color: var(--task-meta-text);
+            background-color: var(--edit-bg);
+            border: 1px solid var(--edit-border);
+            padding: 8px;
+            border-radius: 5px;
+            white-space: pre-wrap; /* 保留換行符和空格 */
+            word-break: break-word;
+            min-height: 30px;
+            line-height: 1.4;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+
+        .task-notes[contenteditable="true"] {
+            outline: 2px solid var(--primary-btn-bg);
+            border-color: var(--primary-btn-hover-bg);
+        }
+
+        /* 優先級標籤樣式 */
+        .priority-tag {
+            position: absolute;
+            top: -8px;
+            right: 15px;
+            font-size: 0.75em;
+            padding: 3px 8px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .priority-tag.high { background-color: var(--priority-high); }
+        .priority-tag.medium { background-color: var(--priority-medium); }
+        .priority-tag.low { background-color: var(--priority-low); }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            margin-left: auto; /* 將按鈕推到最右邊 */
+        }
+
+        .task-actions button {
+            background: none;
+            border: 1px solid var(--action-btn-border);
+            font-size: 0.9em;
+            cursor: pointer;
+            color: var(--action-btn-text);
+            transition: color 0.2s ease, transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+            padding: 5px 10px;
+            border-radius: 5px;
+            white-space: nowrap;
+        }
+
+        .task-actions button:hover {
+            color: var(--action-btn-hover-text);
+            background-color: var(--action-btn-hover-bg);
+            border-color: var(--action-btn-hover-bg);
+            transform: scale(1.05);
+        }
+
+        .task-actions button.delete-btn:hover {
+            background-color: var(--delete-btn-hover-bg);
+            border-color: var(--delete-btn-hover-bg);
+        }
+
+        /* 編輯模式 */
+        .task-item.editing .task-text {
+            background-color: var(--edit-bg);
+            border: 1px solid var(--edit-border);
+            padding: 5px 8px;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .no-task-message {
+            text-align: center;
+            color: var(--no-task-text);
+            padding: 20px;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px 25px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .input-area, .io-buttons {
+                flex-direction: column;
+            }
+
+            .input-area input[type="text"],
+            .input-area input[type="date"],
+            .input-area select,
+            .input-area button,
+            .io-buttons button {
+                width: 100%;
+                margin-bottom: 8px;
+            }
+
+            .filters {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .filter-btn {
+                width: 80%;
+                margin-bottom: 8px;
+            }
+
+            .task-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .task-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+
+            .task-content {
+                width: 100%;
+            }
+
+            .task-meta {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .priority-tag {
+                top: 10px;
+                right: 10px;
+            }
+        }
+        /* --- CSS 樣式結束 --- */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>待辦清單</h1>
+
+        <div class="input-area">
+            <input type="text" id="taskInput" placeholder="新增任務...">
+            <input type="date" id="dueDateInput">
+            <select id="prioritySelect">
+                <option value="low">低優先級</option>
+                <option value="medium" selected>中優先級</option>
+                <option value="high">高優先級</option>
+            </select>
+            <button id="addTaskBtn">新增任務</button>
+        </div>
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">所有任務</button>
+            <button class="filter-btn" data-filter="pending">進行中</button>
+            <button class="filter-btn" data-filter="completed">已完成</button>
+        </div>
+
+        <ul id="taskList">
+            </ul>
+
+        <div class="io-buttons">
+            <button id="exportBtn">匯出資料</button>
+            <input type="file" id="importFile" accept=".json">
+            <button id="importBtn">匯入資料</button>
+            <button id="darkModeToggle">切換主題</button>
+            <button class="home-button"><a href="../index.html" style="color: white; text-decoration: none;">回首頁</a></button>
+        </div>
+    </div>
+
+    <script>
+        /* --- JavaScript 腳本開始 --- */
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskInput = document.getElementById('taskInput');
+            const dueDateInput = document.getElementById('dueDateInput');
+            const prioritySelect = document.getElementById('prioritySelect');
+            const addTaskBtn = document.getElementById('addTaskBtn');
+            const taskList = document.getElementById('taskList');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            // 匯出入相關元素
+            const exportBtn = document.getElementById('exportBtn');
+            const importBtn = document.getElementById('importBtn');
+            const importFile = document.getElementById('importFile');
+
+            // 暗黑模式相關元素
+            const darkModeToggle = document.getElementById('darkModeToggle');
+
+
+            let tasks = []; // 儲存所有任務的陣列
+            let currentFilter = 'all'; // 當前篩選狀態
+
+            // --- 初始化和載入任務 ---
+            loadTasks();
+            loadDarkModePreference(); // 載入暗黑模式設定
+            renderTasks();
+            updateFilterButtons();
+
+            // --- 事件監聽器 ---
+            addTaskBtn.addEventListener('click', addTask);
+            taskInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    addTask();
+                }
+            });
+            taskList.addEventListener('click', handleTaskActions);
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    currentFilter = e.target.dataset.filter;
+                    updateFilterButtons();
+                    renderTasks();
+                });
+            });
+
+            // 匯出入事件監聽
+            exportBtn.addEventListener('click', exportTasksToFile);
+            importBtn.addEventListener('click', () => importFile.click()); // 點擊匯入按鈕觸發檔案選擇
+            importFile.addEventListener('change', importTasksFromFile); // 檔案選擇後處理
+
+            // 暗黑模式切換監聽
+            darkModeToggle.addEventListener('click', toggleDarkMode);
+
+            // 拖曳功能
+            let draggedItem = null;
+
+            taskList.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('task-item')) {
+                    draggedItem = e.target;
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.target.classList.add('dragging');
+                }
+            });
+
+            taskList.addEventListener('dragover', (e) => {
+                e.preventDefault(); // 允許拖曳
+                const currentItem = e.target.closest('.task-item');
+                if (currentItem && currentItem !== draggedItem) {
+                    const bounding = currentItem.getBoundingClientRect();
+                    const offset = bounding.y + (bounding.height / 2);
+                    if (e.clientY > offset) {
+                        // 向下移動
+                        taskList.insertBefore(draggedItem, currentItem.nextSibling);
+                    } else {
+                        // 向上移動
+                        taskList.insertBefore(draggedItem, currentItem);
+                    }
+                }
+            });
+
+            taskList.addEventListener('dragend', () => {
+                if (draggedItem) {
+                    draggedItem.classList.remove('dragging');
+                    draggedItem = null;
+                    saveTasksOrder(); // 儲存新的順序
+                }
+            });
+
+            // --- 任務操作函數 ---
+
+            function addTask() {
+                const text = taskInput.value.trim();
+                const dueDate = dueDateInput.value;
+                const priority = prioritySelect.value;
+
+                if (text === '') {
+                    alert('任務內容不能為空！');
+                    return;
+                }
+
+                const newTask = {
+                    id: Date.now(), // 用時間戳記作為唯一ID
+                    text: text,
+                    completed: false,
+                    dueDate: dueDate,
+                    priority: priority,
+                    notes: '' // 新增備註屬性
+                };
+
+                tasks.unshift(newTask); // 新增任務到最前面
+                saveTasks();
+                renderTasks();
+
+                // 清空輸入欄
+                taskInput.value = '';
+                dueDateInput.value = '';
+                prioritySelect.value = 'medium'; // 重設優先級
+            }
+
+            function handleTaskActions(e) {
+                const target = e.target;
+                const taskItem = target.closest('.task-item');
+                if (!taskItem) return;
+
+                const taskId = parseInt(taskItem.dataset.id);
+
+                if (target.classList.contains('complete-checkbox')) {
+                    toggleComplete(taskId);
+                } else if (target.classList.contains('edit-btn') || target.classList.contains('task-text')) {
+                    editTaskText(taskId, taskItem); // 編輯主文字
+                } else if (target.classList.contains('delete-btn')) {
+                    deleteTask(taskId);
+                } else if (target.classList.contains('task-notes-toggle') || target.classList.contains('task-notes')) {
+                    editTaskNotes(taskId, taskItem); // 編輯備註
+                }
+            }
+
+            function toggleComplete(id) {
+                tasks = tasks.map(task =>
+                    task.id === id ? { ...task, completed: !task.completed } : task
+                );
+                saveTasks();
+                renderTasks();
+            }
+
+            // 編輯任務主文字
+            function editTaskText(id, taskItemElement) {
+                const taskTextElement = taskItemElement.querySelector('.task-text');
+                const originalText = taskTextElement.innerText;
+
+                if (taskTextElement.contentEditable === 'true') { // 已經在編輯模式
+                    return;
+                }
+
+                taskTextElement.contentEditable = true;
+                taskItemElement.classList.add('editing'); // 添加編輯樣式
+                taskTextElement.focus();
+
+                const range = document.createRange();
+                range.selectNodeContents(taskTextElement);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+
+                const saveEdit = () => {
+                    const newText = taskTextElement.innerText.trim();
+                    if (newText === '') {
+                        alert('任務內容不能為空！');
+                        taskTextElement.innerText = originalText;
+                    } else {
+                        tasks = tasks.map(task =>
+                            task.id === id ? { ...task, text: newText } : task
+                        );
+                        saveTasks();
+                    }
+                    taskTextElement.contentEditable = false;
+                    taskItemElement.classList.remove('editing'); // 移除編輯樣式
+                    renderTasks();
+                };
+
+                taskTextElement.addEventListener('blur', saveEdit, { once: true });
+                taskTextElement.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEdit();
+                    }
+                }, { once: true });
+            }
+
+            // 編輯任務備註
+            function editTaskNotes(id, taskItemElement) {
+                const taskNotesElement = taskItemElement.querySelector('.task-notes');
+                const taskNotesToggle = taskItemElement.querySelector('.task-notes-toggle');
+                const originalNotes = taskNotesElement.innerText.trim() === '點擊新增備註...' ? '' : taskNotesElement.innerText;
+
+
+                // 先確保備註區塊是可見的
+                if (taskNotesElement.style.display === 'none') {
+                    taskNotesElement.style.display = 'block';
+                }
+
+                if (taskNotesElement.contentEditable === 'true') { // 已經在編輯模式
+                    return;
+                }
+
+                taskNotesElement.contentEditable = true;
+                taskNotesElement.focus();
+
+                // 如果是預設文字，選中它以便用戶直接輸入
+                if (taskNotesElement.innerText.trim() === '點擊新增備註...') {
+                    const range = document.createRange();
+                    range.selectNodeContents(taskNotesElement);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+
+
+                const saveNotes = () => {
+                    const newNotes = taskNotesElement.innerText.trim();
+                    tasks = tasks.map(task =>
+                        task.id === id ? { ...task, notes: newNotes } : task
+                    );
+                    saveTasks();
+                    taskNotesElement.contentEditable = false;
+                    renderTasks(); // 重新渲染以更新顯示和備註提示文字
+                };
+
+                taskNotesElement.addEventListener('blur', saveNotes, { once: true });
+                // 備註允許換行，所以 Enter 鍵不觸發保存
+            }
+
+            function deleteTask(id) {
+                if (confirm('確定要刪除這個任務嗎？')) {
+                    tasks = tasks.filter(task => task.id !== id);
+                    saveTasks();
+                    renderTasks();
+                }
+            }
+
+            function saveTasksOrder() {
+                const orderedTaskIds = Array.from(taskList.children).map(item => parseInt(item.dataset.id));
+                const newOrderedTasks = [];
+                orderedTaskIds.forEach(id => {
+                    const task = tasks.find(t => t.id === id);
+                    if (task) {
+                        newOrderedTasks.push(task);
+                    }
+                });
+                tasks = newOrderedTasks;
+                saveTasks();
+            }
+
+            // --- 匯出入功能 ---
+
+            function exportTasksToFile() {
+                const dataStr = JSON.stringify(tasks, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `todolist_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                alert('資料已匯出為 JSON 檔案！');
+            }
+
+            function importTasksFromFile(event) {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        if (Array.isArray(importedData) && importedData.every(item => typeof item === 'object' && 'id' in item && 'text' in item && 'completed' in item)) {
+                            tasks = importedData;
+                            tasks = tasks.map(task => ({
+                                ...task,
+                                priority: task.priority || 'medium',
+                                dueDate: task.dueDate || '',
+                                notes: task.notes || '' // 確保匯入時也有 notes 屬性
+                            }));
+
+                            saveTasks();
+                            renderTasks();
+                            alert('資料已成功匯入！');
+                        } else {
+                            alert('匯入的檔案格式不正確，請選擇有效的 To-Do List JSON 檔案。');
+                        }
+                    } catch (error) {
+                        alert('解析檔案時發生錯誤，請確認檔案是否為有效的 JSON 格式。\n錯誤訊息: ' + error.message);
+                        console.error('匯入檔案錯誤:', error);
+                    }
+                };
+                reader.readAsText(file);
+                event.target.value = '';
+            }
+
+            // --- 暗黑模式功能 ---
+            function toggleDarkMode() {
+                document.body.classList.toggle('dark-mode');
+                const isDarkMode = document.body.classList.contains('dark-mode');
+                localStorage.setItem('darkModeEnabled', isDarkMode);
+            }
+
+            function loadDarkModePreference() {
+                const isDarkMode = localStorage.getItem('darkModeEnabled') === 'true';
+                if (isDarkMode) {
+                    document.body.classList.add('dark-mode');
+                }
+            }
+
+
+            // --- 資料儲存與載入 ---
+
+            function saveTasks() {
+                localStorage.setItem('myWorkToDoList', JSON.stringify(tasks));
+            }
+
+            function loadTasks() {
+                const storedTasks = localStorage.getItem('myWorkToDoList');
+                if (storedTasks) {
+                    tasks = JSON.parse(storedTasks);
+                    tasks = tasks.map(task => ({
+                        ...task,
+                        priority: task.priority || 'medium',
+                        dueDate: task.dueDate || '',
+                        notes: task.notes || '' // 確保載入時也有 notes 屬性
+                    }));
+                }
+            }
+
+            // --- 渲染任務到界面 ---
+
+            function renderTasks() {
+                taskList.innerHTML = '';
+
+                const filteredTasks = tasks.filter(task => {
+                    if (currentFilter === 'all') return true;
+                    if (currentFilter === 'pending') return !task.completed;
+                    if (currentFilter === 'completed') return task.completed;
+                    return false;
+                });
+
+                // **修正拖曳問題：** 移除完成狀態排序，讓篩選器控制顯示，拖曳後的順序在其他排序條件相同時被保留
+                filteredTasks.sort((a, b) => {
+                    const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+                    // 1. 優先級排序 (高 > 中 > 低)
+                    if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+                        return priorityOrder[b.priority] - priorityOrder[a.priority];
+                    }
+                    // 2. 截止日期排序 (越近的越前面，沒有日期的排最後)
+                    if (a.dueDate && b.dueDate) {
+                        return new Date(a.dueDate) - new Date(b.dueDate);
+                    }
+                    if (a.dueDate && !b.dueDate) return -1;
+                    if (!a.dueDate && b.dueDate) return 1;
+                    return 0; // 如果其他排序條件相同，保留在篩選前陣列中的相對順序 (即拖曳後的順序)
+                });
+
+
+                if (filteredTasks.length === 0) {
+                    const noTaskMessage = document.createElement('li');
+                    noTaskMessage.className = 'no-task-message';
+                    noTaskMessage.innerText = '目前沒有任務，趕快新增一個吧！';
+                    taskList.appendChild(noTaskMessage);
+                    return;
+                }
+
+                filteredTasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.className = `task-item ${task.completed ? 'completed' : ''}`;
+                    li.dataset.id = task.id;
+                    li.draggable = true;
+
+                    const dueDateText = task.dueDate ? `<span class="due-date">${task.dueDate}</span>` : '';
+                    // 根據是否有備註決定顯示的備註提示文字
+                    const notesDisplay = task.notes ? task.notes : '點擊新增備註...';
+                    const notesToggleText = task.notes ? '備註 💬' : '備註 ➕';
+                    const notesInitialDisplay = task.notes ? 'block' : 'none'; // 如果有備註，預設顯示備註區塊
+
+                    li.innerHTML = `
+                        <input type="checkbox" class="complete-checkbox" ${task.completed ? 'checked' : ''}>
+                        <div class="task-content">
+                            <span class="task-text">${task.text}</span>
+                            <div class="task-meta">
+                                ${dueDateText}
+                            </div>
+                            <div class="task-notes-wrapper">
+                                <span class="task-notes-toggle">${notesToggleText}</span>
+                                <div class="task-notes" contenteditable="false" style="display:${notesInitialDisplay};">${notesDisplay}</div>
+                            </div>
+                        </div>
+                        <div class="priority-tag ${task.priority}">${getPriorityText(task.priority)}</div>
+                        <div class="task-actions">
+                            <button class="edit-btn">編輯</button>
+                            <button class="delete-btn">刪除</button>
+                        </div>
+                    `;
+                    taskList.appendChild(li);
+
+                    // 為備註區塊的顯示/隱藏添加事件監聽
+                    const currentNotesToggle = li.querySelector('.task-notes-toggle');
+                    const currentNotes = li.querySelector('.task-notes');
+                    currentNotesToggle.addEventListener('click', () => {
+                        currentNotes.style.display = currentNotes.style.display === 'none' ? 'block' : 'none';
+                    });
+                });
+            }
+
+            function getPriorityText(priority) {
+                switch (priority) {
+                    case 'high': return '高';
+                    case 'medium': return '中';
+                    case 'low': return '低';
+                    default: return '';
+                }
+            }
+
+            function updateFilterButtons() {
+                filterBtns.forEach(btn => {
+                    if (btn.dataset.filter === currentFilter) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+        });
+        /* --- JavaScript 腳本結束 --- */
+    </script>
+</body>
+</html>
